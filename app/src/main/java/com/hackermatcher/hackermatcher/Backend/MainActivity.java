@@ -16,6 +16,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Database mDatabase;
     private Storage mStorage;
+    
+    private Button uploadImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,15 @@ public class MainActivity extends AppCompatActivity {
         mDatabase.addHackathon(pennApps);
         mDatabase.addHackathon(yHacks);
         mDatabase.addTeam(team1);
+        
+        uploadImage = (Button)findViewById(R.id.uploadImg);
+        uploadImage.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                Intent intent =  new Intent(view.getContext(), UploadProfilePicture.class);
+                startActivityForResult(intent, 0);
+            }
+        });
 
     }
 
