@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
     private Database mDatabase;
     private Storage mStorage;
     
-    private Button uploadImage;
+    private Button uploadImage, downloadImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +47,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view){
                 Intent intent =  new Intent(view.getContext(), UploadProfilePicture.class);
+                startActivityForResult(intent, 0);
+            }
+        });
+        
+        downloadImage = (Button)findViewById(R.id.downloadImg);
+        downloadImage.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                Intent intent =  new Intent(view.getContext(), DownloadProfilePicture.class);
                 startActivityForResult(intent, 0);
             }
         });
