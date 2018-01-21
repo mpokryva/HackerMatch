@@ -11,6 +11,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,11 +38,19 @@ public class CircleView extends View {
     private GestureDetector mGestureDetector;
     private float xTranslate;
     private float yTranslate;
+    private int cx;
+    private int cy;
+    private HashMap<Hacker, Double> hackerScoreMap;
+    private HashMap<Circle, Hacker> circleHackerMap;
+    private float diffX;
+    private float diffY;
+
 
 
     public CircleView(Context context, HashMap<Hacker, Double> hackerMap) {
         super(context);
         init();
+        this.hackerScoreMap = hackerMap;
         mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
         mGestureDetector = new GestureDetector(getContext(), new GestureListener());
         rand = new Random();
@@ -50,17 +59,21 @@ public class CircleView extends View {
         ((HackerMatchActivity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels;
         int width = displayMetrics.widthPixels;
-        circles.add(new Circle(width / 2, height / 2, 150, true));
+        cx = width / 2;
+        cy = height / 2;
+//        circles.add(centerCircle);
+        circleHackerMap = new HashMap<>();
         for (Hacker hacker : hackerMap.keySet()) {
             float x = 1;
             float y = 2;
             float radius = hackerMap.get(hacker).floatValue() * (Circle.MAX_RADIUS - Circle.MIN_RADIUS) + Circle.MIN_RADIUS;
-            circles.add(new Circle(x, y, radius));
+            Circle circle = new Circle(x, y, radius);
+            circles.add(circle);
+            circleHackerMap.put(circle, hacker);
         }
-//        for (int i = 0; i < circles.size(); i++) {
-//            Circle[] c = new Circle[circles.size()];
-//            circles.get(i).computePosition1(circles.toArray(c), circles.get(0).getX(), circles.get(0).getY());
-//        }
+        circles.get(0).setX(cx);
+        circles.get(0).setY(cy);
+        circles.get(0).setComputed(true);
     }
 
     @Override
@@ -71,21 +84,12 @@ public class CircleView extends View {
         return true;
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-//        recompute();
-    }
-
     private void recompute() {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((HackerMatchActivity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int height = displayMetrics.heightPixels;
-        int width = displayMetrics.widthPixels;
-        circles.set(0, new Circle(width / 2, height / 2, CENTER_RADIUS, true));
         for (int i = 0; i < circles.size(); i++) {
             Circle[] c = new Circle[circles.size()];
-            circles.get(i).computePosition1(circles.toArray(c), circles.get(0).getX(), circles.get(0).getY());
+            circles.get(i).computePosition1(circles.toArray(c), cx, cy);
         }
     }
 
@@ -121,14 +125,16 @@ public class CircleView extends View {
 //        }
         canvas.scale(mScaleFactor, mScaleFactor);
         canvas.translate(xTranslate, yTranslate);
-        circles.get(0).setX(getWidth() / 2);
-        circles.get(0).setY(getHeight() / 2);
+        diffX += xTranslate;
+        diffY += yTranslate;
         recompute();
         for (int i = 0; i < circles.size(); i++) {
             int multiplier = 100;
 //            float x = rand.nextFloat() * multiplier;
 //            float y = rand.nextFloat() * multiplier;
+
             canvas.drawCircle(circles.get(i).getX(), circles.get(i).getY(), circles.get(i).getRadius(), mPiePaint);
+
         }
     }
 
@@ -155,6 +161,8 @@ public class CircleView extends View {
             invalidate();
             return true;
         }
+
+
     }
 
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
@@ -165,15 +173,30 @@ public class CircleView extends View {
             yTranslate = e2.getY() - e1.getY();
             Log.d(TAG, "" + xTranslate);
             invalidate();
-//            float viewportOffsetX = distanceX * mCurrentViewport.width()
-//                    / mContentRect.width();
-//            float viewportOffsetY = -distanceY * mCurrentViewport.height()
-//                    / mContentRect.height();
-//            // Updates the viewport, refreshes the display.
-//            setViewportBottomLeft(
-//                    mCurrentViewport.left + viewportOffsetX,
-//                    mCurrentViewport.bottom + viewportOffsetY);
             return true;
         }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            for (int i = 0; i < circles.size(); i ++) {
+                Circle circle = circles.get(i);
+                if (doesIntersect(circle, e.getX(), e.getY(), mScaleFactor, diffX, diffY)) {
+                    Hacker hacker = circleHackerMap.get(circle);
+                    double score = hackerScoreMap.get(hacker);
+                    Toast.makeText(getContext(),  hacker.getName() +", " + score, Toast.LENGTH_SHORT).show();
+                }
+            }
+            return true;
+        }
+    }
+
+    private double getDistance(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+    }
+    private boolean doesIntersect(Circle circle, double x, double y, float zoom, float diffX, float diffY) {
+        float circleX = (circle.getX() * zoom) + xTranslate;
+        float circleY = (circle.getY() * zoom) + yTranslate;
+        double dist = getDistance(circleX, circleY, x, y);
+        return dist < circle.getRadius();
     }
 }

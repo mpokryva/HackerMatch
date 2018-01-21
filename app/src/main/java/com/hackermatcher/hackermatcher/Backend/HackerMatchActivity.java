@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -43,11 +44,9 @@ public class HackerMatchActivity extends AppCompatActivity {
                     Hacker hacker = child.getValue(Hacker.class);
                     hackers.add(hacker);
                 }
-                HashMap<Hacker, Double> hackerMap = new HashMap<>();
-                Random rand = new Random();
-                for (int i = 0; i < hackers.size(); i++) {
-                    hackerMap.put(hackers.get(i), rand.nextDouble());
-                }
+                Hacker user = hackers.get(0);
+                hackers.remove(0);
+                HashMap<Hacker, Double> hackerMap = user.rankMatches(null, hackers, true);
                 CircleView circleView  = new CircleView(HackerMatchActivity.this, hackerMap);
                 setContentView(circleView);
             }

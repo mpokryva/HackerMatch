@@ -65,6 +65,10 @@ public class Circle {
         this.y = y;
     }
 
+    public void setComputed(boolean computed) {
+        this.computed = computed;
+    }
+
     void computePosition2(Circle[] c, float cx, float cy) {
 
     }
