@@ -25,6 +25,7 @@ public class Hacker {
         this.name = name;
         this.interests = interests;
         this.university = university;
+        this.skills = skills;
         teamID = null;
     }
 
