@@ -34,7 +34,7 @@ public class HackerMatchActivity extends AppCompatActivity {
     private Hacker user;
     private List<Hacker> hackers;
     private boolean shouldExit;
-    private final int NUM_HACKERS = 60;
+    private final int NUM_HACKERS = 40;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
