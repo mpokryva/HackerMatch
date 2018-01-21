@@ -1,6 +1,8 @@
 package com.hackermatcher.hackermatcher.Backend;
 
-public class Interest {
+import java.io.Serializable;
+
+public class Interest implements Serializable{
 
     private String interest;
     private int interestLevel;

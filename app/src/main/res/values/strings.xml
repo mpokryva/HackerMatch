@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">HackerMatcher</string>
+    <string name="skills">Skills</string>
+    <string name="interests">Interests</string>
+    <string name="change_profile">Change Profile</string>
 </resources>
